@@ -24,7 +24,7 @@ describe('Asynchronous function weatherInfo tests', () => {
   });
 
   it('weatherInfo should provide an error', (done) => {
-    const url = "http://localhost:3000/weatr?location='Tenerife, Spain'"
+    const url = "http://localhost:3001/weatr?location='Tenerife, Spain'"
     request({url: url, json: true}, (error: Error, response) => {
         expect(response.statusCode).to.be.equal(404);
 

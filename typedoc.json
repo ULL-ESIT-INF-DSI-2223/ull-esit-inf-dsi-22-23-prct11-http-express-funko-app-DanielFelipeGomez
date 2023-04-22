@@ -1,9 +1,11 @@
 {
   "entryPoints": [
-    "./src/entities/*.ts",
-    "./src/handler/*.ts",
-    "./src/enumerables/*.ts",
-    "./src/interfaces/*.ts",
+    "./src/pe/*.ts",
+    "./src/practica/entities/*.ts",
+    "./src/practica/handler/*.ts",
+    "./src/practica/enumerables/*.ts",
+    "./src/practica/interfaces/*.ts",
+    "./src/practica/*.ts"
   ],
   "out": "./docs"
 }

@@ -14,7 +14,7 @@ import { hideBin } from "yargs/helpers";
 export class MenuFunko {
 
     /**
-     * Método encargado de contruir el objeto Funko a partir de los argumentos pasados por línea de comandos
+     * Arrow Function encargado de contruir el objeto Funko a partir de los argumentos pasados por línea de comandos
      * y agregarlo al archivo JSON
      * @param nombreUsuario nombre del usuario que ejecuta el programa
      * @param id identificador del Funko
@@ -28,22 +28,26 @@ export class MenuFunko {
      * @param caracteristica_especial característica especial del Funko
      * @param valor_mercado valor de mercado del Funko
      */
-    static agregarFunko(nombreUsuario: string, id: number, nombre: string, descripcion: string, tipo: TipoFunko, genero: GeneroFunko, franquicia: string, numero: number, exclusivo: boolean, caracteristica_especial: string, valor_mercado: number) {
+    static agregarFunko = (nombreUsuario: string, id: number, nombre: string, 
+        descripcion: string, tipo: TipoFunko, genero: GeneroFunko, franquicia: string, 
+        numero: number, exclusivo: boolean, caracteristica_especial: string, valor_mercado: number,  
+        callback: ( err: string | undefined, data: Funko | undefined) => void) => {
+
         const funko = new Funko(id, nombre, descripcion, tipo, genero, franquicia, numero, exclusivo, caracteristica_especial, valor_mercado);
         const filePath = './db/' + nombreUsuario + '/' + String(funko.id) + '.json';
         if (!fs.existsSync('./db/' + nombreUsuario)) {
             ManejadorJSON.crearDirectorio('./db/' + nombreUsuario); 
         }
         if (fs.existsSync(filePath)) {
-            console.log(chalk.red(`¡Ups! Ya existe un funko con el id ${funko.id}`));
+            callback(`¡Ups! Ya existe un funko con el id ${funko.id}`, undefined);
         } else {
             ManejadorJSON.crearJSON(filePath, funko);
-            console.log(chalk.green(`Agregado el funko ${funko.id}`));
+            callback(undefined, funko);
         }
-    }
+    };
 
     /**
-     * Método encargado de eliminar un Funko del archivo JSON
+     * Arrow Function encargado de eliminar un Funko del archivo JSON
      * @param nombreUsuario nombre del usuario que ejecuta el programa
      * @param id identificador del Funko
      * @param nombre nombre del Funko
@@ -56,234 +60,79 @@ export class MenuFunko {
      * @param caracteristica_especial característica especial del Funko
      * @param valor_mercado valor de mercado del Funko
      */
-    static modificarFunko(nombreUsuario: string, id: number, nombre: string, descripcion: string, tipo: TipoFunko, genero: GeneroFunko, franquicia: string, numero: number, exclusivo: boolean, caracteristica_especial: string, valor_mercado: number) {
+    static modificarFunko = (nombreUsuario: string, id: number, nombre: string, 
+        descripcion: string, tipo: TipoFunko, genero: GeneroFunko, franquicia: string, 
+        numero: number, exclusivo: boolean, caracteristica_especial: string, valor_mercado: number,  
+        callback: ( err: string | undefined, data: Funko | undefined) => void) => {
+
         const funko = new Funko(id, nombre, descripcion, tipo, genero, franquicia, numero, exclusivo, caracteristica_especial, valor_mercado);
         const filePath = './db/' + nombreUsuario + '/' + String(funko.id) + '.json';
 
         if (fs.existsSync(filePath)) {
             ManejadorJSON.crearJSON(filePath, funko);
-            console.log(chalk.green(`Modificado el funko ${funko.id}`));
+            callback(undefined, funko);
         } else {
-            console.log(chalk.red(`¡Ups! No existe un funko con el id ${funko.id}`));
+            callback(`¡Ups! No existe un funko con el id ${funko.id}`, undefined);
         }
-    }
+    };
 
     /**
-     * Método encargado de eliminar un Funko del archivo JSON
+     * Arrow Function encargado de eliminar un Funko del archivo JSON
      * @param nombreUsuario nombre del usuario que ejecuta el programa
      * @param id identificador del Funko
      */
-    static eliminarFunko(nombreUsuario: string, id: number) {
+    static eliminarFunko = (nombreUsuario: string, id: number, callback: (
+        err: string | undefined, data: string | undefined) => void) => {
+
         const filePath = './db/' + nombreUsuario + '/' + String(id) + '.json';
         if (fs.existsSync(filePath)) {
             ManejadorJSON.eliminarJSON(filePath);
-            console.log(chalk.green(`Eliminado el funko ${id}`));
+            callback(undefined, `Eliminado el funko ${id}`);
         } else {
-            console.log(chalk.red(`¡Ups! No existe un funko con el id ${id}`));
+            callback(`¡Ups! No existe un funko con el id ${id}`, undefined);
         }
-    }
+    };
 
     /**
-     * Método encargado de listar todos los Funkos del archivo JSON
+     * Arrow Function encargado de listar todos los Funkos del archivo JSON
      * @param nombreUsuario nombre del usuario que ejecuta el programa
      */
-    static listarFunkos(nombreUsuario: string) {
+    static listarFunkos = (nombreUsuario: string,  callback: (
+        err: string | undefined, data: Funko[] | undefined) => void) => {
+
         const files = fs.readdirSync('./db/' + nombreUsuario + '/');
+        let listaFunkos: Funko[] = []
         files.forEach(file => {
             const funkoJSON = ManejadorJSON.leerJSON('./db/' + nombreUsuario + '/' + file);
-            console.log(chalk.bgBlack.white.bold('------------------------------------'));
             if (funkoJSON !== undefined) {
                 const funko = new Funko(funkoJSON._id, funkoJSON._nombre, funkoJSON._descripcion, funkoJSON._tipo, funkoJSON._genero, funkoJSON._franquicia, funkoJSON._numero, funkoJSON._exclusivo, funkoJSON._caracteristica_especial, funkoJSON._valor_mercado);
-                console.log(funko.toString());
+                listaFunkos.push(funko);
             }
-
         });
-    }
+        callback(undefined, listaFunkos);
+    };
 
     /**
-     * Método encargado de mostrar un Funko del archivo JSON, según su id
+     * Arrow Function encargado de mostrar un Funko del archivo JSON, según su id
      * @param nombreUsuario nombre del usuario que ejecuta el programa
      * @param id identificador del Funko
      */
-    static mostrarFunko(nombreUsuario: string, id: number) {
+    static mostrarFunko = (nombreUsuario: string, id: number, callback: (
+        err: string | undefined, data: Funko | undefined) => void) => {
+
         const filePath = './db/' + nombreUsuario + '/' + String(id) + '.json';
         if (fs.existsSync(filePath)) {
             const funkoJSON = ManejadorJSON.leerJSON(filePath);
-            console.log(chalk.bgBlack.white.bold('------------------------------------'));
             if (funkoJSON !== undefined) {
                 const funko = new Funko(funkoJSON._id, funkoJSON._nombre, funkoJSON._descripcion, funkoJSON._tipo, funkoJSON._genero, funkoJSON._franquicia, funkoJSON._numero, funkoJSON._exclusivo, funkoJSON._caracteristica_especial, funkoJSON._valor_mercado);
-                console.log(funko.toString());
+                callback(undefined, funko);
             }
         } else {
-            console.log(chalk.red(`¡Ups! No existe un funko con el id ${id}`));
+            callback(`¡Ups! No existe un funko con el id ${id}`,
+            undefined);
         }
-    }
+    };
 
-    /**
-     * Método encargado de controlar los argumentos de la línea de comandos
-     * para mandar a llamar los métodos de la clase
-     */
-    static controladorMenuFunko() {
-        yargs(hideBin(process.argv))
-            .command('add', 'Añadir a un funko a la colección del usuario', {
-                user: {
-                    description: 'Nombre del usuario',
-                    type: 'string',
-                    demandOption: true
-                },
-                id: {
-                    description: 'Funko ID',
-                    type: 'number',
-                    demandOption: true
-                },
-                nombre: {
-                    description: 'Nombre del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                descripcion: {
-                    description: 'Descripción del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                tipo: {
-                    description: 'Tipo del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                genero: {
-                    description: 'Género del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                franquicia: {
-                    description: 'Franquicia del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                numero: {
-                    description: 'Número del funko',
-                    type: 'number',
-                    demandOption: true
-                },
-                exclusivo: {
-                    description: 'Exclusivo del funko',
-                    type: 'boolean',
-                    demandOption: true
-                },
-                caracteristica_especial: {
-                    description: 'Característica especial del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                valor_mercado: {
-                    description: 'Valor de mercado del funko',
-                    type: 'number',
-                    demandOption: true
-                }
-            }, (argv) => {
-                this.agregarFunko(argv.user, argv.id, argv.nombre, argv.descripcion, argv.tipo as TipoFunko, argv.genero as GeneroFunko, argv.franquicia, argv.numero, argv.exclusivo, argv.caracteristica_especial, argv.valor_mercado);
-            })
-            .command('list', 'Lista todos los funkos de un usurio', {
-                user: {
-                    description: 'Nombre del usuario',
-                    type: 'string',
-                    demandOption: true
-                }
-            }, (argv) => {
-                this.listarFunkos(argv.user);
-            })
-            .command('update', 'Modificar un funko existente', {
-                user: {
-                    description: 'Nombre del usuario',
-                    type: 'string',
-                    demandOption: true
-                },
-                id: {
-                description: 'Funko ID',
-                type: 'number',
-                demandOption: true
-                },
-                nombre: {
-                    description: 'Nombre del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                descripcion: {
-                    description: 'Descripción del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                tipo: {
-                    description: 'Tipo del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                genero: {
-                    description: 'Género del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                franquicia: {
-                    description: 'Franquicia del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                numero: {
-                    description: 'Número del funko',
-                    type: 'number',
-                    demandOption: true
-                },
-                exclusivo: {
-                    description: 'Exclusivo del funko',
-                    type: 'boolean',
-                    demandOption: true
-                },
-                caracteristica_especial: {
-                    description: 'Característica especial del funko',
-                    type: 'string',
-                    demandOption: true
-                },
-                valor_mercado: {
-                    description: 'Valor de mercado del funko',
-                    type: 'number',
-                    demandOption: true
-                }
-            }, (argv) => {
-                this.modificarFunko(argv.user, argv.id, argv.nombre, argv.descripcion, argv.tipo as TipoFunko, argv.genero as GeneroFunko, argv.franquicia, argv.numero, argv.exclusivo, argv.caracteristica_especial, argv.valor_mercado);
-            })
-            .command('read', 'Muestra un funko especifico según su id', {
-                user: {
-                    description: 'Nombre del usuario',
-                    type: 'string',
-                    demandOption: true
-                },
-                id: {
-                description: 'Funko ID',
-                type: 'number',
-                demandOption: true
-                }
-            }, (argv) => {
-                this.mostrarFunko(argv.user, argv.id);
-            })
-            .command('delete', 'Elimina un funko de la colección del usuario', {
-                user: {
-                    description: 'Nombre del usuario',
-                    type: 'string',
-                    demandOption: true
-                },
-                id: {
-                description: 'Funko ID',
-                type: 'number',
-                demandOption: true
-                }
-            }, (argv) => {
-                this.eliminarFunko(argv.user, argv.id);
-            })
-            .help()
-            .argv;
-
-    }
 
  
 }
